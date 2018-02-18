@@ -88,9 +88,11 @@ class SequencePredictor(Model):
         x = self.inputs_placeholder
         ### YOUR CODE HERE (~2-3 lines)
         outputs, state = tf.nn.dynamic_rnn(cell=cell,
-                                           inputs=self.inputs_placeholder,
+                                           inputs=x,
                                            dtype=tf.float32)
-        preds = tf.nn.softmax(outputs, axis=1)
+        outputs = tf.transpose(outputs, [1, 0, 2])
+        last = tf.gather(outputs, int(outputs.get_shape()[0]) - 1)
+        preds = tf.nn.sigmoid(last)
         ### END YOUR CODE
 
         return preds #state # preds
@@ -110,10 +112,11 @@ class SequencePredictor(Model):
             loss: A 0-d tensor (scalar)
         """
         y = self.labels_placeholder
-
+        print y[0]
+        print preds[0]
         ### YOUR CODE HERE (~1-2 lines)
-        ce_cost = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=preds)
-        loss = tf.reduce_mean(ce_cost)
+        l2_loss = tf.nn.l2_loss(y-preds)
+        loss = tf.reduce_mean(l2_loss)
         ### END YOUR CODE
 
         return loss
@@ -153,7 +156,7 @@ class SequencePredictor(Model):
         # - Remember to set self.grad_norm
 
         gradients, variables = zip(*optimizer.compute_gradients(loss))
-        if self.clip_gradients:
+        if self.config.clip_gradients:
             gradients, _ = tf.clip_by_global_norm(gradients, clip_norm=self.config.max_grad_norm)
         self.grad_norm = tf.global_norm(gradients)
         train_op = optimizer.apply_gradients(zip(gradients, variables))
