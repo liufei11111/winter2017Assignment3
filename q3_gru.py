@@ -323,7 +323,7 @@ def do_sequence_prediction(args):
     with tf.Graph().as_default():
         # You can change this around, but make sure to reset it to 41 when
         # submitting.
-        tf.set_random_seed(59)
+        tf.set_random_seed(41)
 
         # Initializing RNNs weights to be very large to showcase
         # gradient clipping.
