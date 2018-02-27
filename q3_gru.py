@@ -90,9 +90,7 @@ class SequencePredictor(Model):
         outputs, state = tf.nn.dynamic_rnn(cell=cell,
                                            inputs=x,
                                            dtype=tf.float32)
-        outputs = tf.transpose(outputs, [1, 0, 2])
-        last = tf.gather(outputs, int(outputs.get_shape()[0]) - 1)
-        preds = tf.nn.sigmoid(last)
+        preds = tf.nn.sigmoid(state)
         ### END YOUR CODE
 
         return preds #state # preds
